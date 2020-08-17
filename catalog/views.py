@@ -18,11 +18,17 @@ def index(request):
     # The 'all()' is implied by default.
     num_author = Author.objects.all().count()
 
+    # Number of visits to this view, as counted in the session variables.
+    # 현재 유저가 index페이지를 몇 번 방문했는지 출력
+    num_visits = request.session.get('num_visits',0)
+    request.session['num_visits'] = num_visits + 1
+
     context = {
         'num_books' : num_books,
         'num_instances' : num_instances,
         'num_instances_available' : num_instances_available,
-        'num_author' : num_author
+        'num_author' : num_author,
+        'num_visits' : num_visits,
     }
 
     # Render the HTML template index.html with the data in the contxt variable
