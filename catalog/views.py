@@ -6,17 +6,17 @@ from django.views import generic
 
 """Function-Based View(FBV) : 전통적인 방식"""
 def index(request):
-    '''View function for home page of site'''
+    """View function for home page of site"""
 
-    # Generate counts of some of the main objects
+    # count main object
     num_books = Book.objects.all().count()
     num_instances = BookInstance.objects.all().count()
 
     # Available books (Status = 'a')
-    num_instances_available = BookInstance.objects.filter(status__exact='a').count()
+    num_instances_available = BookInstance.objects.filter(status__exact='a').count() # status__exact : 'status'중에서 정확히(exact) 상태가 a인 것을 골라라. SQL의 WHERE문으로 변환된다.https://docs.djangoproject.com/en/3.0/topics/db/queries/  2. dunder(double underbar) 주의 : status_exact가 아니라 status__exact임.
 
     # The 'all()' is implied by default.
-    num_author = Author.objects.all().count()
+    num_authors = Author.objects.count()
 
     # Number of visits to this view, as counted in the session variables.
     # 현재 유저가 index페이지를 몇 번 방문했는지 출력
@@ -49,3 +49,4 @@ class BookListView(generic.ListView):
 class BookDetailView(generic.DetailView):
     """django에서 기본 제공되는 class - based generic DETAIL view"""
     model = Book
+

@@ -13,16 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path
 from django.contrib import admin
-from django.views.generic import RedirectView
-from django.conf import settings
+from django.urls import path
 from django.conf.urls import include
-from django.conf.urls.static import static
 
+# 리디렉션을 위한 import
+from django.views.generic import RedirectView
+
+# static file을 위한 import
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('catalog/', include('catalog.urls')),
-    path('', RedirectView.as_view(url='/catalog/', permanent=True)),
+    path('catalog/',include('catalog.urls')),# www.~/catalog로 시작되는 요청이 들어오면 catalog.urls.py를 참조해 맵핑하겠다.
+    path('',RedirectView.as_view(url='/catalog/',permanent=True)),# loopback주소로 접근시 loopback/catalog/로 리다이렉트.
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

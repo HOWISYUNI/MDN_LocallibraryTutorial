@@ -1,7 +1,11 @@
 {% extends "base_generic.html" %}
 
+{% block title%}
+    <title>Konkuk Univ. Library</title>
+{% endblock %}
+
 {% block content %}
-  <h1>Local Library Home</h1>
+  <h1>Konkuk Univ. library Home</h1>
   <p>Welcome to LocalLibrary, a website developed by <em>Mozilla Developer Network</em>!</p>
   <h2>Dynamic content</h2>
   <p>The library has the following record counts:</p>
@@ -17,4 +21,5 @@
     {% else %} times
     {% endif %}.
   </p>
+
 {% endblock %}
