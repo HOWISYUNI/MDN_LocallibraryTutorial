@@ -28,4 +28,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('catalog/',include('catalog.urls')),# www.~/catalog로 시작되는 요청이 들어오면 catalog.urls.py를 참조해 맵핑하겠다.
     path('',RedirectView.as_view(url='/catalog/',permanent=True)),# loopback주소로 접근시 loopback/catalog/로 리다이렉트.
+    path('accounts/',include('django.contrib.auth.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

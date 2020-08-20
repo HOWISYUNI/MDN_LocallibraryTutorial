@@ -20,18 +20,22 @@ def index(request):
 
     # Number of visits to this view, as counted in the session variables.
     # 현재 유저가 index페이지를 몇 번 방문했는지 출력
-    num_visits = request.session.get('num_visits',0)
+    num_visits = request.session.get('num_visits',0) #방문한적이 없다면 0으로 초기화한다.
+    """ 복잡한 현재 세션 id를 직접입력하지않고 'num_visits'키값에 맵핑해 쉽게접근하도록 구성. 세션id당 어떤 값을 저장할 수 있도록 설계.
+        세션 아이디와 그에 대한 값들은 DB에 저장된다.
+        request.session['num_visits']  = 값: 'num_visits'키값에 맵핑돼있는 세션 id가 어떤 값을 가질 수 있다.
+        request.session.get('num_visits',0) : 'num_visits'키값에 맵핑돼있는 세션id 에 저장된 값을 가져온다."""
     request.session['num_visits'] = num_visits + 1
 
     context = {
         'num_books' : num_books,
         'num_instances' : num_instances,
         'num_instances_available' : num_instances_available,
-        'num_author' : num_author,
+        'num_author' : num_authors,
         'num_visits' : num_visits,
     }
 
-    # Render the HTML template index.html with the data in the contxt variable
+    # Render HTML template index.html with the data in the contxt variable
     return render(request, 'index.html', context=context)
 
 """Class-Based View(CBV)"""
