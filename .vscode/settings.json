@@ -1,6 +1,0 @@
-{
-    "python.pythonPath": "E:\\pyenv\\django",
-    "python.linting.pylintArgs":[
-        "--load-plugins=pylint_django"
-    ]
-}
