@@ -1,5 +1,7 @@
 from django.db import models
 import uuid # BookInstance 모델 클래스에서 사용
+from django.contrib.auth.models import User
+from datetime import date
 
 # Create your models here.
 
@@ -31,7 +33,7 @@ class Book(models.Model):
       -> A : B = ~ : * = ~ 대 * 관계
     2. 선언
       many to many : 둘 중 아무데나
-      일 대  ~: '일' 쪽에 Foreignkey 선언"""
+      일 대  ~: '일' 쪽에 Foreignkey 부여해준다"""
     genre = models.ManyToManyField(Genre,help_text='Select a genre for this book')
     author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True) 
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
@@ -52,16 +54,15 @@ class BookInstance(models.Model):
         같은 제목의 책에 대해 서로 다른 고유번호를 할당해서 관리"""
 
     # Fields
-            # 관계
+        # 관계
     '''uuid : 식별자(ID, PRIMARY KEY)로 사용할 수 있는 32자리 임의의 식별자. 순차적 ID가 레코드에 할당되는게 싫을때 사용'''
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text='Unique ID for this particular book across whole library')
     book = models.ForeignKey('Book',on_delete=models.SET_NULL, null=True)
+    borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     imprint = models.CharField(max_length=200) # 출판사
     due_back = models.DateField(null=True, blank=True)
-
-
-
+    
 
     ''' status 필드를 위한 LOAN_STATUS 튜플 자료구조. 하드코딩된 선택리스트 
         status의 choices인자에 전달된다.'''
@@ -83,11 +84,19 @@ class BookInstance(models.Model):
     # Metadata : BookInstance 모델 클래스의 설정
     class Meta:
         ordering = ['due_back']
+        # 퍼미션은 Meta 내부클래스에 정의한다.
+        # 퍼미션 선언만 해준 상태. 템플릿, 뷰 구현은 안함. 방법은 https://developer.mozilla.org/ko/docs/Learn/Server-side/Django/Authentication 의 '허가'부분 참고
+        permissions = (("can_mark_returned","Set book as returned"),)
 
     # Methods
     def __str__(self):
         """String for representing the Model object"""
         return f'{self.id} ({self.book.title})' # python string조작은 f-string이 갑이다
+
+    def is_overdue(self):
+        if self.due_back and date.today() > self.due_back:
+            return true
+        return False
 
 class Author(models.Model):
     """Model representing an author"""

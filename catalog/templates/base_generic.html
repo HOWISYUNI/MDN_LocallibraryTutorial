@@ -28,7 +28,20 @@
         <ul class="sidebar-nav">
           <li><a href="{% url 'index' %}">Home</a></li>
           <li><a href="{% url 'books' %}">All books</a></li>
-          <li><a href="">All authors</a></li>
+          <li><a href="{% url 'authors'%}">All authors</a></li>
+
+          <!-- user.is_authenticated : 로그인한 유저 확인. user는 기본 템플릿 변수 -->
+          {% if user.is_authenticated %}
+          <li>User: {{ user.get_username }}</li>
+          <li><a href="{% url 'my-borrowed' %}">My Borrowed</a></li>
+          <!-- next : 해당 링크를 클릭해 로그인, 로그아웃 성공할 경우 링크를 눌렀던 페이지로 이동 -->
+          <li><a href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>
+          {% else %}
+          <li><a href="{% url 'login'%}?next={{request.path}}">Login</a></li>   
+          {% endif %}
+
+          <hr>
+          <a href="{% url 'all-borrowed' %}">All borrowed</a>
         </ul>
      {% endblock %}
       </div>

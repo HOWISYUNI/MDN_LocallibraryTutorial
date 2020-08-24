@@ -137,6 +137,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# login성공 후 default redirects : /accounts/profile
+# profile이 아니라 / 으로 보내기위한 설정
 LOGIN_REDIRECT_URL = '/'
 
 # send email(password reset   etc.....)

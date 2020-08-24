@@ -1,6 +1,8 @@
-from django.shortcuts import render
 from catalog.models import Book, Author, BookInstance, Genre
+
+from django.shortcuts import render
 from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin # 로그인된 유저만 접근하는 view 생성
 
 # Create your views here.
 
@@ -54,3 +56,23 @@ class BookDetailView(generic.DetailView):
     """django에서 기본 제공되는 class - based generic DETAIL view"""
     model = Book
 
+class AuthorListView(generic.ListView):
+    model = Author
+
+class LoanedBookByUserListView(LoginRequiredMixin, generic.ListView):
+    model = BookInstance
+    template_name = 'catalog/bookinstance_list_borrowed_user.html'
+    paginate_by = 10
+
+    # queryset이 아닌 get_queryset 메서드 오버라이딩한 ORM 표현방식
+    def get_queryset(self):
+        # 빌린책(status__exact = 'o') 중 로그인한 유저가 빌린(borrower = self.request.user) 데이터. due_back순으로 정렬
+        return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
+
+class AllLoanedBookListView(generic.ListView):
+    model = BookInstance
+    template_name = 'catalog/bookinstance_list_borrowed_all.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return BookInstance.objects.filter(status__exact='o').order_by('due_back')
