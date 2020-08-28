@@ -1,7 +1,9 @@
-from django.db import models
-import uuid # BookInstance 모델 클래스에서 사용
-from django.contrib.auth.models import User
 from datetime import date
+import uuid # BookInstance 모델 클래스에서 사용
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.urls import reverse
 
 # Create your models here.
 
@@ -47,7 +49,7 @@ class Book(models.Model):
         """Returns the url to access a detail record for this book.
             모델의 세부 레코드에 접근.
             URL을 통해 특정 레코드의 id가 전송된다면, 응답과 id를 뷰(book detail view)에 전달하기위해 book-detail URL맵퍼를 정의해야한다. 관련 뷰와 템플릿도 정의해야한다. 알맞은 형식의 URL맵퍼를 만들기 위해 reverse()함수를 사용"""
-        return revese('book-detail',args=[str(self.id)])
+        return reverse('book-detail',args=[str(self.id)])
 
 class BookInstance(models.Model):
     """ Model representing a specific copy of a book

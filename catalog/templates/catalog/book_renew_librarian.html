@@ -1,0 +1,14 @@
+{% extends "base_generic.html"%}
+
+{% block content %}
+    <h1>Renew : {{ book_instance.book.title }}</h1>
+    <p>Borrower : {{ book_instance.borrower }}</p>
+    <p {% if book_instance.is_overdue %}class="text-danger" {% endif %}>Due date : {{ book_instance.due_back }}</p>
+
+    <form action="" method="POST">
+        {% csrf_token %} <!-- csrf_token : Django의 cross-site 위조 방지 방식 중 하나 -->
+        {{ form.as_table }} <!-- form.as_table : form의 각 필드를 테이블로 렌더링(as_p : paragraph로 렌더링) -->
+        <input type="submit" value="Submit">
+    </form>
+
+{% endblock %}

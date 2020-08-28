@@ -1,8 +1,15 @@
-from catalog.models import Book, Author, BookInstance, Genre
+import datetime
 
 from django.shortcuts import render
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin # 로그인된 유저만 접근하는 view 생성
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.contrib.auth.decorators import permission_required # 권한부여를 데코레이터(decorator)를 사용해 부여
+
+from catalog.models import Book, Author, BookInstance, Genre
+from catalog.forms import RenewBookForm
 
 # Create your views here.
 
@@ -33,7 +40,7 @@ def index(request):
         'num_books' : num_books,
         'num_instances' : num_instances,
         'num_instances_available' : num_instances_available,
-        'num_author' : num_authors,
+        'num_authors' : num_authors,
         'num_visits' : num_visits,
     }
 
@@ -58,6 +65,10 @@ class BookDetailView(generic.DetailView):
 
 class AuthorListView(generic.ListView):
     model = Author
+    paginate_by = 10
+
+class AuthorDetailView(generic.DetailView):
+    model = Author
 
 class LoanedBookByUserListView(LoginRequiredMixin, generic.ListView):
     model = BookInstance
@@ -69,10 +80,50 @@ class LoanedBookByUserListView(LoginRequiredMixin, generic.ListView):
         # 빌린책(status__exact = 'o') 중 로그인한 유저가 빌린(borrower = self.request.user) 데이터. due_back순으로 정렬
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
 
-class AllLoanedBookListView(generic.ListView):
-    model = BookInstance
-    template_name = 'catalog/bookinstance_list_borrowed_all.html'
-    paginate_by = 10
+# # CBV 형식으로 작성한 대출된 책 뷰
+# class AllLoanedBookListView(generic.ListView):
+#     model = BookInstance
+#     template_name = 'catalog/bookinstance_list_borrowed_all.html'
+#     paginate_by = 10
 
-    def get_queryset(self):
-        return BookInstance.objects.filter(status__exact='o').order_by('due_back')
+#     def get_queryset(self):
+#         return BookInstance.objects.filter(status__exact='o').order_by('due_back')
+
+@permission_required('catalog.staff_member_required')
+def all_loaned_book_list_view(request):
+    loaned_book_list = BookInstance.objects.all()
+    context = {'bookinstance_list' : loaned_book_list}
+    return render(request, 'catalog/bookinstance_list_borrowed_all.html', context)
+
+
+@permission_required('catalog.can_mark_returned')
+def renew_book_librarian(request, pk):
+    # pk에 해당하는 특정 객체를 반환하거나 없으면 404 예외를 발생
+    book_instance = get_object_or_404(BookInstance, pk=pk)
+
+    # POST 요청이면 폼 데이터 바인딩(binding)
+    if request.method == 'POST':
+
+        # form 인스턴스 생성 + 바인딩(binding, 제출할 데이터를 채운다)
+        book_renewal_form = RenewBookForm(request.POST)
+
+        # form 유효성체크
+        if book_renewal_form.is_valid():
+            # 사전타입 form.cleand_data 를 due_back필드에 넣는다.
+            book_instance.due_back = book_renewal_form.cleaned_data['renewal_date']
+            book_instance.save() # db갱신
+
+            # 데이터 갱신 성공 후 이동할 특정URL로 보낸다.
+            return HttpResponseRedirect(reverse('all-borrowed'))
+
+    # POST 이외의 요청(ex.GET)이면 기본 폼 생성
+    else:
+        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        book_renewal_form = RenewBookForm(initial={'renewal_date' : proposed_renewal_date})
+
+    context = {
+        'form' : book_renewal_form,
+        'book_instance' : book_instance,
+    }
+
+    return render(request, 'catalog/book_renew_librarian.html',context)
