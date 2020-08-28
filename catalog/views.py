@@ -2,10 +2,11 @@ import datetime
 
 from django.shortcuts import render
 from django.views import generic
+from django.views.generic.edit import CreateView, UpdateView, DeleteView # Generic Edit View 사용하기
 from django.contrib.auth.mixins import LoginRequiredMixin # 로그인된 유저만 접근하는 view 생성
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import permission_required # 권한부여를 데코레이터(decorator)를 사용해 부여
 
 from catalog.models import Book, Author, BookInstance, Genre
@@ -127,3 +128,22 @@ def renew_book_librarian(request, pk):
     }
 
     return render(request, 'catalog/book_renew_librarian.html',context)
+
+# Generic Edit View를 사용하는 아래 세가지 클래스. 
+# Edit View를 사용하면 post, get 메서드를 귀찮게 구분하지 않아도 알아서 처리해준다.
+# modelForm까지 자동으로 만들어준다.
+# Create, Update : <model_name>_form.html 의 템플릿을 같이쓴다.
+# Delete : <model_name>_confirm_delete.html 템플릿을 쓴다.
+# 두 템플릿의 suffix(_form, _confirm_delete 은 클래스 안에서 template_name_suffix 인자로 변경할 수 있다.)
+class AuthorCreate(CreateView):
+    model = Author
+    fields = '__all__' # Author 모델의 모든 필드를 가져온다.
+    initial = {'date_of_death' : '05/01/2018',}
+
+class AuthorUpdate(UpdateView):
+    model = Author
+    fields = {'first_name', 'last_name', 'date_of_birth', 'date_of_death'}
+
+class AuthorDelete(Deleteview):
+    model = Author
+    success_url = reverse_lazy('authors') # Delete 성공시 redirect되는 url, urls.py에서 name='authors'를 찾아간다.
