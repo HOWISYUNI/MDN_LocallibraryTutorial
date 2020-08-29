@@ -138,12 +138,16 @@ def renew_book_librarian(request, pk):
 class AuthorCreate(CreateView):
     model = Author
     fields = '__all__' # Author 모델의 모든 필드를 가져온다.
-    initial = {'date_of_death' : '05/01/2018',}
+    initial = {'date_of_death': '05/01/2018'}
 
 class AuthorUpdate(UpdateView):
     model = Author
-    fields = {'first_name', 'last_name', 'date_of_birth', 'date_of_death'}
+    fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
 
-class AuthorDelete(Deleteview):
+class AuthorDelete(DeleteView):
     model = Author
     success_url = reverse_lazy('authors') # Delete 성공시 redirect되는 url, urls.py에서 name='authors'를 찾아간다.
+
+class BookCreate(CreateView):
+    model = Book
+    fields = '__all__'
