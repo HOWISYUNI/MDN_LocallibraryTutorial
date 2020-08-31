@@ -35,7 +35,7 @@ class Book(models.Model):
       -> A : B = ~ : * = ~ 대 * 관계
     2. 선언
       many to many : 둘 중 아무데나
-      일 대  ~: '일' 쪽에 Foreignkey 부여해준다"""
+      일 대 다: '다' 쪽에 Foreignkey 부여해준다"""
     genre = models.ManyToManyField(Genre,help_text='Select a genre for this book')
     author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True) 
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
