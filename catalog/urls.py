@@ -16,3 +16,5 @@ urlpatterns = [
     path('author/<int:pk>/delete/', views.AuthorDelete.as_view(), name='author_delete'),
     path('book/create/', views.BookCreate.as_view(), name='book_create'),
 ]
+
+# branch test
